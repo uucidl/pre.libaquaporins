@@ -1,15 +1,15 @@
 #include "alloc.h"
 
-struct aqp_Piece {};
+typedef struct aqp_Piece {} Piece;
 
-extern struct aqp_Piece* aqp_piece_alloc()
+extern Piece* aqp_piece_alloc()
 {
-	struct aqp_Piece* piece = aqp_calloc(1, sizeof *piece);
+	Piece* piece = aqp_calloc(1, sizeof *piece);
 
 	return piece;
 }
 
-extern void aqp_piece_free(struct aqp_Piece* piece)
+extern void aqp_piece_free(Piece* piece)
 {
 	aqp_free (piece);
 }
