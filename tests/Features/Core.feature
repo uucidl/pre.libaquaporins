@@ -9,7 +9,8 @@ Scenario: Creation of unique pieces
   Then the first and second piece should be different
 
 Scenario: Deletion without leaks
-  Given I have created a piece
-  Then memory may have been allocated
-  When I delete the piece
-  Then memory should not be allocated
+  Given I want to monitor memory
+    And I have created a piece
+   Then memory should have been allocated
+   When I delete the piece
+   Then memory should not be allocated
