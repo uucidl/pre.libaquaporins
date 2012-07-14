@@ -1,0 +1,26 @@
+include ysr.mk
+
+aqp_OBJS=$(DEST)/src/aqp.o
+aqp_OBJS+=$(DEST)/src/arch/libc-alloc.o
+aqp_INCLUDES=$(TOP)/include
+
+$(call mk-c-staticlib-rule,aqp)
+
+libaqp_LIBS=$(aqp_LIBNAME)
+libaqp_LIBSPATH=$(aqp_LIBDIR)
+libaqp_INCLUDES=$(TOP)/include
+libaqp_DEPS=aqp
+libaqp=1
+
+cukebins_ROOT=$(TOP)/../third-party/cucumber-cpp
+cukebins_OBJS=$(DEST)/tests/steps.o
+cukebins_INCLUDES=$(cukebins_ROOT)/include
+cukebins_LIBSPATH=$(cukebins_ROOT)/build/src /usr/local/lib
+cukebins_LIBS=cucumber-cpp boost_system-mt boost_regex-mt boost_unit_test_framework-mt
+cukebins_REQUIRES=libaqp
+$(call mk-c++-console-prog-rule,cukebins)
+
+tests-run: cukebins-run
+	(cd $(TOP)/tests && cucumber)
+
+.PHONY: tests-run
