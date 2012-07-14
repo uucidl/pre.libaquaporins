@@ -1,9 +1,9 @@
 #include <boost/test/unit_test.hpp>
-#include <cukebins/wireserver.hpp>
+#include <cucumber-cpp/defs.hpp>
 
 extern "C" {
-#include "src/alloc.h"
-#include "src/aqp.h"
+#include "../src/alloc.h"
+#include "aqp.h"
 }
 
 static int seen_pointers_capacity = 256;

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "alloc.h"
+#include "../alloc.h"
 
 extern void* aqp_malloc(int size)
 {
