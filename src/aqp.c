@@ -1,6 +1,7 @@
 #include "alloc.h"
+#include "aqp.h"
 
-typedef struct aqp_Piece { char a; } Piece;
+typedef struct aqpPiece { char a; } Piece;
 
 extern Piece* aqp_piece_alloc()
 {

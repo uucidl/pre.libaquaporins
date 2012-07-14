@@ -92,7 +92,7 @@ extern void aqp_free(void* ptr)
 }
 }
 
-static std::vector<struct aqp_Piece*> pieces;
+static std::vector<aqpPiece*> pieces;
 
 GIVEN("^I have created (a|another) piece$") {
 	pieces.push_back(aqp_piece_alloc());
