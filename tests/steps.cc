@@ -95,7 +95,7 @@ extern void aqp_free(void* ptr)
 static std::vector<aqp_piece_t> pieces;
 
 GIVEN("^I have created (a|another) piece$") {
-	pieces.push_back(aqp_piece_alloc());
+	pieces.push_back(aqp_new_piece());
 }
 
 THEN("^the first and second piece should be different$") {
@@ -119,7 +119,7 @@ THEN("^memory should have been allocated$") {
 }
 
 THEN("^I delete the piece$") {
-	aqp_piece_free (pieces.back());
+	aqp_delete_piece (pieces.back());
 	pieces.pop_back();
 }
 

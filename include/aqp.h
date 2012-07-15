@@ -34,27 +34,38 @@ typedef struct { struct aqpSegmentEditionRange* impl; } aqp_segment_edition_rang
 /**
  * Allocate a new piece.
  */
-extern aqp_piece_t aqp_piece_alloc ();
+extern aqp_piece_t aqp_new_piece (void);
 
 /**
  * Free all resources related to a piece.
  */
-extern void aqp_piece_free (aqp_piece_t piece);
+extern void aqp_delete_piece (aqp_piece_t piece);
 
 /**
  * Add a segment to the piece and returns it to you.
  */
-extern aqp_segment_t aqp_segment_add (aqp_piece_t piece);
+extern aqp_segment_t aqp_new_segment (aqp_piece_t piece);
 
 /**
  * Remove a segment from the piece.
- *
- * You should not use the pointer anymore past that point.
  */
-extern void aqp_segment_remove (aqp_segment_t segment);
+extern void aqp_delete_segment (aqp_segment_t segment);
 
-extern aqp_segment_edition_range_t aqp_segment_edit (aqp_segment_t segment, int start, int end);
+/**
+ * Starts editing a segment by obtaining an edition range.
+ */
+extern aqp_segment_edition_range_t aqp_edit_range (aqp_segment_t segment, int start, int end);
 
-extern aqp_segment_range_t aqp_segment_read (aqp_segment_t segment, int start, int end, int* data);
+/**
+ * Update the segment with operations made to the range.
+ *
+ * Modifications are visible to readers.
+ */
+extern void aqp_commit_range (aqp_segment_edition_range_t range);
+
+/**
+ * Starts reading a segment by obtaining a reading range.
+ */
+extern aqp_segment_range_t aqp_read_range (aqp_segment_t segment, int start, int end, int* data);
 
 #endif
