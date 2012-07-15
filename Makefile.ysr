@@ -27,3 +27,5 @@ tests-run: cukebins-run
 	(cd $(TOP)/tests && cucumber)
 
 .PHONY: tests-run
+
+all: aqp cukebins
