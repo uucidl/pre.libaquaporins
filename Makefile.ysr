@@ -1,8 +1,11 @@
 include ysr.mk
 
+STRICT=1
+
 aqp_OBJS=$(DEST)/src/aqp.o
 aqp_OBJS+=$(DEST)/src/arch/libc-alloc.o
 aqp_INCLUDES=$(TOP)/include
+aqp_CFLAGS=-Wmissing-prototypes -Wstrict-prototypes
 
 $(call mk-c-staticlib-rule,aqp)
 
