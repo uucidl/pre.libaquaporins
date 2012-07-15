@@ -92,14 +92,14 @@ extern void aqp_free(void* ptr)
 }
 }
 
-static std::vector<aqpPiece*> pieces;
+static std::vector<aqp_piece_t> pieces;
 
 GIVEN("^I have created (a|another) piece$") {
 	pieces.push_back(aqp_piece_alloc());
 }
 
 THEN("^the first and second piece should be different$") {
-	BOOST_CHECK(pieces[0] != pieces[1]);
+	BOOST_CHECK(pieces[0].impl != pieces[1].impl);
 }
 
 
