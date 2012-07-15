@@ -13,3 +13,6 @@
 
 # Compilation directories
 build/
+
+# YSR hostname configuration
+ysr/*-config.mk
