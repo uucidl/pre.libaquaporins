@@ -3,15 +3,14 @@
 
 typedef struct aqpPiece { char a; } Piece;
 
-extern aqp_piece_t aqp_new_piece(void)
+extern Piece* aqp_new_piece(void)
 {
 	Piece* piece = aqp_calloc(1, sizeof *piece);
 
-	return (aqp_piece_t) { piece };
+	return piece;
 }
 
-extern void aqp_delete_piece(aqp_piece_t piece)
+extern void aqp_delete_piece(Piece* piece)
 {
-	aqp_free (piece.impl);
-	piece.impl = 0;
+	aqp_free (piece);
 }

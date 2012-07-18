@@ -6,7 +6,7 @@
 /**
  * A Piece contains segments, their headers, their content (patterns)
  */
-typedef struct { struct aqpPiece* impl; } aqp_piece_t;
+typedef struct aqpPiece* aqp_piece_t;
 
 /**
  * A segment is a sequence of simultaneously occuring control data.
@@ -14,12 +14,12 @@ typedef struct { struct aqpPiece* impl; } aqp_piece_t;
  * Its control data is described in a header, and one can edit and
  * navigate the control data with random accesses.
  */
-typedef struct { struct aqpSegment* impl; } aqp_segment_t;
+typedef struct aqpSegment* aqp_segment_t;
 
 /**
  * A window over the control data, for reading.
  */
-typedef struct { struct aqpSegmentRange* impl; } aqp_segment_range_t;
+typedef struct aqpSegmentRange* aqp_segment_range_t;
 
 /**
  * A Window over the control data, for reading and writing.
@@ -27,7 +27,7 @@ typedef struct { struct aqpSegmentRange* impl; } aqp_segment_range_t;
  * Modifications are only reflected to the segment once the range has
  * been disposed of.
  */
-typedef struct { struct aqpSegmentEditionRange* impl; } aqp_segment_edition_range_t;
+typedef struct aqpSegmentEditionRange* aqp_segment_edition_range_t;
 
 /* 2- operations */
 

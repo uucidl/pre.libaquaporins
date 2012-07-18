@@ -99,7 +99,7 @@ GIVEN("^I have created (a|another) piece$") {
 }
 
 THEN("^the first and second piece should be different$") {
-	BOOST_CHECK(pieces[0].impl != pieces[1].impl);
+	BOOST_CHECK(pieces[0] != pieces[1]);
 }
 
 
