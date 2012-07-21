@@ -151,6 +151,51 @@ GIVEN("^I have created a track '(.+)' with signature '(.+)'$") {
 	REGEX_PARAM(std::string, track_signature);
 }
 
+static aqp_segment_edition_range_t edit_range;
+static int edit_range_row;
+
 GIVEN("^I created a write range \\[(\\d+), *(\\d+)\\] on track '(.+)'$") {
-    pending();
+	REGEX_PARAM(int, start);
+	REGEX_PARAM(int, end);
+	edit_range = aqp_edit_range (segments.back(), start, end);
+	edit_range_row = 0;
+}
+
+THEN("^I commit the write range$") {
+	aqp_commit_range (edit_range);
+}
+
+THEN("^I write (\\d+) to the range$") {
+	REGEX_PARAM(int, data);
+
+	int field = 0;
+	aqp_field_write_int(edit_range, edit_range_row, field, data);
+}
+
+THEN("^I advance to the next row$") {
+	edit_range_row++;
+}
+
+static aqp_segment_range_t read_range;
+static int read_range_row;
+
+GIVEN("^I created a read range on track '(.+)'$") {
+	int start = 0;
+	int end = INT_MAX;
+
+	read_range = aqp_read_range (segments.back(), start, end);
+	read_range_row = 0;
+}
+
+THEN("^The sum of the range should be (\\d+)") {
+	REGEX_PARAM(int, checksum);
+
+	int sum = 0;
+	while (read_range_row < 16) {
+		int data = aqp_field_read_int(read_range, read_range_row, 0);
+		sum += data;
+		read_range_row++;
+	}
+
+	BOOST_CHECK_EQUAL(checksum, sum);
 }

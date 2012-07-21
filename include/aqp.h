@@ -57,6 +57,16 @@ void aqp_delete_segment (aqp_segment_t segment);
 aqp_segment_edition_range_t aqp_edit_range (aqp_segment_t segment, int start, int end);
 
 /**
+ * Writes an integer to the field of a given row
+ */
+void aqp_field_write_int (aqp_segment_edition_range_t range, int row, int field, int value);
+
+/**
+ * Read an integer from the field of a given row
+ */
+int aqp_field_read_int (aqp_segment_range_t range, int row, int field);
+
+/**
  * Update the segment with operations made to the range.
  *
  * Modifications are visible to readers.
@@ -66,6 +76,6 @@ void aqp_commit_range (aqp_segment_edition_range_t range);
 /**
  * Starts reading a segment by obtaining a reading range.
  */
-aqp_segment_range_t aqp_read_range (aqp_segment_t segment, int start, int end, int* data);
+aqp_segment_range_t aqp_read_range (aqp_segment_t segment, int start, int end);
 
 #endif
