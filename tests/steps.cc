@@ -1,6 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include <cucumber-cpp/defs.hpp>
 
+#include <string.h>
+
 extern "C" {
 #include "../src/alloc.h"
 #include "aqp.h"
@@ -93,6 +95,7 @@ extern void aqp_free(void* ptr)
 }
 
 static std::vector<aqp_piece_t> pieces;
+static std::vector<aqp_segment_t> segments;
 
 GIVEN("^I have created (a|another) piece$") {
 	pieces.push_back(aqp_new_piece());
@@ -108,6 +111,17 @@ AFTER() {
 	memtrace = 0;
 	seen_pointers_n = 0;
 	total_allocated = 0;
+
+	segments.clear();
+
+	aqp_piece_t piece;
+	for (std::vector<aqp_piece_t>::iterator it = pieces.begin();
+	     it != pieces.end();
+	     ++it) {
+		aqp_delete_piece (*it);
+	}
+
+	pieces.clear();
 }
 
 GIVEN("^I want to monitor memory$") {
@@ -126,4 +140,17 @@ THEN("^I delete the piece$") {
 
 THEN("^memory should not be allocated$") {
 	BOOST_CHECK(total_allocated == 0);
+}
+
+GIVEN("^I have created a segment$") {
+	segments.push_back(aqp_new_segment(pieces.back()));
+}
+
+GIVEN("^I have created a track '(.+)' with signature '(.+)'$") {
+	REGEX_PARAM(std::string, track_name);
+	REGEX_PARAM(std::string, track_signature);
+}
+
+GIVEN("^I created a write range \\[(\\d+), *(\\d+)\\] on track '(.+)'$") {
+    pending();
 }

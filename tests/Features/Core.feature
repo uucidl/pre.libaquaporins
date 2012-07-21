@@ -14,3 +14,17 @@ Scenario: Deletion without leaks
    Then memory should have been allocated
    When I delete the piece
    Then memory should not be allocated
+
+Scenario: A simple flat piece
+  Given a segment with tracks:
+  | track_name | signature |
+  | A | uint8     |
+
+    And the track 'A' contains:
+| field 0 |
+|       2 |
+|       3 |
+|       4 |
+|     nil |
+|     128 |
+   Then the checksum of track 'A' should be 137
