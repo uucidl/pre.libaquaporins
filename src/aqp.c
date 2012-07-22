@@ -1,10 +1,10 @@
+#include <string.h>
+#include <assert.h>
+
 #include "alloc.h"
 #include "aqp.h"
-
 #include "growa.h"
 #include "ca.h"
-
-#include <assert.h>
 
 typedef struct aqpSegment
 {
@@ -60,7 +60,7 @@ static char* field_pointer(SegmentRange* view_range, int row, int field)
 	Segment* segment = view_range->segment;
 	int field_n = count_fields(segment);
 
-	assert(row >= view_range->row_end - view_range->row_start);
+	assert(row < view_range->row_end - view_range->row_start);
 	assert(field < field_n);
 
 	char* rowptr = segment->rowdata + segment->row_size * (view_range->row_start + row);
@@ -187,7 +187,15 @@ void aqp_commit_range (SegmentEditionRange* range)
 
 SegmentRange* aqp_read_range (Segment* segment, int start, int end)
 {
-	return 0;
+	SegmentRange* range = aqp_calloc (1, sizeof *range);
+
+	make_range (range, segment, start, end);
+
+	Piece* piece = segment->piece;
+	inca_m(piece->read_ranges, piece->read_ranges_n, piece->read_ranges_capacity);
+	piece->read_ranges[piece->read_ranges_n - 1] = range;
+
+	return range;
 }
 
 int aqp_field_read_int (SegmentRange* range, int row, int field)
