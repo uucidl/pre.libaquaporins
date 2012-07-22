@@ -1,15 +1,18 @@
 include ysr.mk
 
+STRICT=1
+
 aqp_OBJS=$(DEST)/src/aqp.o
 aqp_OBJS+=$(DEST)/src/arch/libc-alloc.o
 aqp_INCLUDES=$(TOP)/include
+aqp_CFLAGS=-Wmissing-prototypes -Wstrict-prototypes
 
 $(call mk-c-staticlib-rule,aqp)
 
 libaqp_LIBS=$(aqp_LIBNAME)
 libaqp_LIBSPATH=$(aqp_LIBDIR)
 libaqp_INCLUDES=$(TOP)/include
-libaqp_DEPS=aqp
+libaqp_DEPS=$(aqp_LIB)
 libaqp=1
 
 cukebins_ROOT=$(TOP)/../third-party/cucumber-cpp
@@ -24,3 +27,5 @@ tests-run: cukebins-run
 	(cd $(TOP)/tests && cucumber)
 
 .PHONY: tests-run
+
+all: aqp cukebins
