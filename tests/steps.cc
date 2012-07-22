@@ -191,6 +191,10 @@ GIVEN("^I have created a segment$") {
 	segments.push_back(aqp_new_segment(pieces.back()));
 }
 
+WHEN("^I delete the segment") {
+	aqp_delete_segment(segments.back());
+}
+
 GIVEN("^I have created a track '(.+)' with signature '(.+)'$") {
 	REGEX_PARAM(std::string, track_name);
 	REGEX_PARAM(std::string, track_signature);

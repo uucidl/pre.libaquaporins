@@ -18,6 +18,16 @@ Scenario: Deletion without leaks
    When I delete the piece
    Then memory should not be allocated
 
+Scenario: Creation, Deletion of segments
+  Given I want to monitor memory
+    And I have created a piece
+    And a segment with tracks:
+  | track_name | signature |
+  | A          | uint8     |
+   When I delete the segment
+    And I delete the piece
+   Then memory should not be allocated
+
 Scenario: A simple flat piece
   Given I want to monitor memory
     And a segment with tracks:
