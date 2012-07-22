@@ -21,7 +21,7 @@ Scenario: Deletion without leaks
 Scenario: A simple flat piece
   Given a segment with tracks:
   | track_name | signature |
-  | A | uint8     |
+  | A          | int8      |
 
     And the track 'A' contains:
 | field 0 |
@@ -29,5 +29,5 @@ Scenario: A simple flat piece
 |       3 |
 |       4 |
 |     nil |
-|     128 |
-   Then the checksum of track 'A' should be 137
+|      28 |
+   Then the checksum of track 'A' should be 37
