@@ -10,13 +10,16 @@
 #define growa_m(n_expr, array_var, elementn_var, arrayn_var) do {	\
 		int const n = n_expr;					\
 		if (arrayn_var < n) {					\
-			if (arrayn_var <= 0) {				\
-				arrayn_var = 1;				\
+			int new_arrayn = arrayn_var;			\
+			if (new_arrayn <= 0) {				\
+				new_arrayn = 1;				\
 			}						\
-			while (arrayn_var < n) {			\
-				arrayn_var *= 2;			\
+			while (new_arrayn < n) {			\
+				new_arrayn *= 2;			\
 			}						\
-			array_var = aqp_realloc (array_var, arrayn_var * sizeof (*array_var)); \
+			array_var = aqp_realloc (array_var, new_arrayn * sizeof (*array_var)); \
+			memset(array_var + arrayn_var, 0, new_arrayn - arrayn_var); \
+			arrayn_var = new_arrayn;			\
 		}							\
 		elementn_var = n;					\
 	} while (0)
