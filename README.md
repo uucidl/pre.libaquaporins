@@ -6,8 +6,8 @@ cellular rockets
 dependencies
 ============
 
-uucidl/ysr, for building
-cucumber, for testing
+- make or uucidl/ysr, for building
+- cucumber, for testing
 
 tests
 =====

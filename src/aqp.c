@@ -22,7 +22,12 @@ typedef struct aqpSegment
 	char rowdata_n;
 } Segment;
 
-static void delete_segment (Segment* segment);
+static void delete_segment (Segment* segment)
+{
+	freea_m(segment->rowdata, segment->rowdata_n, segment->rowdata_capacity);
+	aqp_free (segment);
+}
+
 static int count_rows (Segment* segment)
 {
 	return segment->rowdata_n / segment->row_size;
@@ -107,16 +112,25 @@ extern Piece* aqp_new_piece(void)
 extern void aqp_delete_piece(Piece* piece)
 {
 	for (int i = 0; i < piece->segments_n; i++) {
+		if (!piece->segments[i])
+			continue;
+
 		delete_segment (piece->segments[i]);
 		piece->segments[i] = 0;
 	}
 
 	for (int i = 0; i < piece->read_ranges_n; i++) {
+		if (!piece->read_ranges[i])
+			continue;
+
 		aqp_free (piece->read_ranges[i]);
 		piece->read_ranges[i] = NULL;
 	}
 
 	for (int i = 0; i < piece->edit_ranges_n; i++) {
+		if (!piece->edit_ranges[i])
+			continue;
+
 		aqp_free (piece->edit_ranges[i]);
 		piece->edit_ranges[i] = NULL;
 	}
@@ -164,10 +178,16 @@ extern Segment* aqp_new_segment (Piece* piece)
 	return segment;
 }
 
-static void delete_segment (Segment* segment)
+extern void aqp_delete_segment (Segment* segment)
 {
-	freea_m(segment->rowdata, segment->rowdata_n, segment->rowdata_capacity);
-	aqp_free (segment);
+	Piece* piece = segment->piece;
+	for (int i = 0; i < piece->segments_n; i++) {
+		if (piece->segments[i] == segment) {
+			piece->segments[i] = NULL;
+		}
+	}
+
+	delete_segment(segment);
 }
 
 extern SegmentEditionRange* aqp_edit_range (Segment* segment, int start, int end)
