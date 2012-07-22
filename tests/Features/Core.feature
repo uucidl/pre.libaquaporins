@@ -11,6 +11,9 @@ Scenario: Creation of unique pieces
 Scenario: Deletion without leaks
   Given I want to monitor memory
     And I have created a piece
+    And a segment with tracks:
+  | track_name | signature |
+  | A          | uint8     |
    Then memory should have been allocated
    When I delete the piece
    Then memory should not be allocated
