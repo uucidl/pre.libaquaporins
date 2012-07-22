@@ -19,7 +19,8 @@ Scenario: Deletion without leaks
    Then memory should not be allocated
 
 Scenario: A simple flat piece
-  Given a segment with tracks:
+  Given I want to monitor memory
+    And a segment with tracks:
   | track_name | signature |
   | A          | int8      |
 
@@ -31,3 +32,5 @@ Scenario: A simple flat piece
 |     nil |
 |      28 |
    Then the checksum of track 'A' should be 37
+   When I delete the piece
+   Then memory should not be allocated

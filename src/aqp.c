@@ -111,6 +111,16 @@ extern void aqp_delete_piece(Piece* piece)
 		piece->segments[i] = 0;
 	}
 
+	for (int i = 0; i < piece->read_ranges_n; i++) {
+		aqp_free (piece->read_ranges[i]);
+		piece->read_ranges[i] = NULL;
+	}
+
+	for (int i = 0; i < piece->edit_ranges_n; i++) {
+		aqp_free (piece->edit_ranges[i]);
+		piece->edit_ranges[i] = NULL;
+	}
+
 	freea_m(piece->segments,    piece->segments_n,    piece->segments_capacity);
 	freea_m(piece->read_ranges, piece->read_ranges_n, piece->read_ranges_capacity);
 	freea_m(piece->edit_ranges, piece->edit_ranges_n, piece->edit_ranges_capacity);
