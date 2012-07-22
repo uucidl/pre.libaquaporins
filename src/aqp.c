@@ -2,34 +2,104 @@
 #include "aqp.h"
 
 #include "growa.h"
+#include "ca.h"
+
+#include <assert.h>
 
 typedef struct aqpSegment
 {
+	struct aqpPiece* piece;
+	struct FieldDescription
+	{
+		int type_id;
+		int size;
+	} row_type[1];
 
+	int row_size;
+
+	char* rowdata;
+	char rowdata_capacity;
+	char rowdata_n;
 } Segment;
+
+static void delete_segment (Segment* segment);
+static int count_rows (Segment* segment)
+{
+	return segment->rowdata_n / segment->row_size;
+}
+
+static int count_fields(Segment* segment)
+{
+	return array_count_m(segment->row_type);
+}
 
 typedef struct aqpSegmentRange
 {
+	Segment* segment;
+	int row_start;
+	int row_end;
 } SegmentRange;
+
+static void make_range (SegmentRange* range, Segment* segment, int start, int end)
+{
+	assert(start <= end);
+	assert(start >= 0);
+
+	int const n = count_rows(segment);
+	int effective_end = end >= n ? n : end;
+
+	*range = (SegmentRange) {
+		.segment   = segment,
+		.row_start = start,
+		.row_end   = effective_end,
+	};
+}
+
+static char* field_pointer(SegmentRange* view_range, int row, int field)
+{
+	Segment* segment = view_range->segment;
+	int field_n = count_fields(segment);
+
+	assert(row >= view_range->row_end - view_range->row_start);
+	assert(field < field_n);
+
+	char* rowptr = segment->rowdata + segment->row_size * (view_range->row_start + row);
+	char* fieldptr = rowptr;
+
+	for (int i = 0; i < field; i++) {
+		fieldptr += segment->row_type[i].size;
+	}
+
+	return fieldptr;
+}
 
 typedef struct aqpSegmentEditionRange
 {
+	SegmentRange view_range;
 } SegmentEditionRange;
 
 typedef struct aqpPiece
 {
 	Segment** segments;
 	int segments_n;
-	int segments_size;
+	int segments_capacity;
+
+	SegmentRange** read_ranges;
+	int read_ranges_n;
+	int read_ranges_capacity;
+
+	SegmentEditionRange** edit_ranges;
+	int edit_ranges_n;
+	int edit_ranges_capacity;
 } Piece;
 
 extern Piece* aqp_new_piece(void)
 {
 	Piece* piece = aqp_calloc(1, sizeof *piece);
 
-	piece->segments   = 0;
-	piece->segments_n = 0;
-	piece->segments_size = 0;
+	inita_m(piece->segments,    piece->segments_n,    piece->segments_capacity);
+	inita_m(piece->read_ranges, piece->read_ranges_n, piece->read_ranges_capacity);
+	inita_m(piece->edit_ranges, piece->edit_ranges_n, piece->edit_ranges_capacity);
 
 	return piece;
 }
@@ -37,10 +107,14 @@ extern Piece* aqp_new_piece(void)
 extern void aqp_delete_piece(Piece* piece)
 {
 	for (int i = 0; i < piece->segments_n; i++) {
-		aqp_free (piece->segments[i]);
+		delete_segment (piece->segments[i]);
 		piece->segments[i] = 0;
 	}
-	freea_m(piece->segments, piece->segments_n, piece->segments_size);
+
+	freea_m(piece->segments,    piece->segments_n,    piece->segments_capacity);
+	freea_m(piece->read_ranges, piece->read_ranges_n, piece->read_ranges_capacity);
+	freea_m(piece->edit_ranges, piece->edit_ranges_n, piece->edit_ranges_capacity);
+
 	aqp_free (piece);
 }
 
@@ -53,23 +127,57 @@ extern Segment* aqp_new_segment (Piece* piece)
 		}
 	}
 
-	growa_m(i + 1, piece->segments, piece->segments_n, piece->segments_size);
-
 	Segment* segment = aqp_calloc (1, sizeof *segment);
+	*segment = (Segment) {
+		.piece = piece,
+		.row_type = {
+			{
+				0,
+				sizeof(char)
+			}
+		},
+		.rowdata = 0,
+		.rowdata_capacity = 0,
+		.rowdata_n = 0,
+	};
 
-	piece->segments[i] = segment;
+	segment->row_size = 0;
+	for (int i = 0; i < array_count_m(segment->row_type); i++) {
+		segment->row_size += segment->row_type[i].size;
+	}
+
+	growa_m(64 * segment->row_size, segment->rowdata, segment->rowdata_n, segment->rowdata_capacity);
+
+	inca_m(piece->segments, piece->segments_n, piece->segments_capacity);
+	piece->segments[piece->segments_n - 1] = segment;
 
 	return segment;
 }
 
-extern SegmentEditionRange* aqp_edit_range (Segment* segment, int start, int end)
+static void delete_segment (Segment* segment)
 {
-	return 0;
+	freea_m(segment->rowdata, segment->rowdata_n, segment->rowdata_capacity);
+	aqp_free (segment);
 }
 
-void aqp_field_write_int (aqp_segment_edition_range_t range, int row, int field, int value)
+extern SegmentEditionRange* aqp_edit_range (Segment* segment, int start, int end)
 {
-	/* NOT IMPLEMENTED */
+	SegmentEditionRange* range = aqp_calloc (1, sizeof *range);
+
+	make_range (&range->view_range, segment, start, end);
+
+	Piece* piece = segment->piece;
+	inca_m(piece->edit_ranges, piece->edit_ranges_n, piece->edit_ranges_capacity);
+	piece->edit_ranges[piece->edit_ranges_n - 1] = range;
+
+	return range;
+}
+
+void aqp_field_write_int (SegmentEditionRange* range, int row, int field, int value)
+{
+	Segment* segment = range->view_range.segment;
+
+	*field_pointer(&range->view_range, row, field) = value;
 }
 
 void aqp_commit_range (SegmentEditionRange* range)
@@ -82,7 +190,7 @@ SegmentRange* aqp_read_range (Segment* segment, int start, int end)
 	return 0;
 }
 
-int aqp_field_read_int (aqp_segment_range_t range, int row, int field)
+int aqp_field_read_int (SegmentRange* range, int row, int field)
 {
-	return -1;
+	return *field_pointer(range, row, field);
 }
