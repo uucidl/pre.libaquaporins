@@ -58,10 +58,12 @@ extern void* aqp_calloc(int count, int size)
 extern void* aqp_realloc(void* ptr, int size)
 {
 	int ptr_size = 0;
+	int slot_i = -1;
 
 	if (memtrace) {
 		for (int i = 0; i < seen_pointers_n; i++) {
 			if (seen_pointers[i].ptr == ptr) {
+				slot_i = i;
 				ptr_size = seen_pointers[i].size;
 				seen_pointers[i].size = size;
 				break;
@@ -71,7 +73,16 @@ extern void* aqp_realloc(void* ptr, int size)
 		total_allocated += size - ptr_size;
 	}
 
-	return realloc (ptr, size);
+	void* new_ptr = realloc (ptr, size);
+	if (memtrace && !ptr) {
+		watch_ptr (new_ptr, size);
+	}
+
+	if (slot_i >= 0) {
+		seen_pointers[slot_i].ptr = new_ptr;
+	}
+
+	return new_ptr;
 }
 
 extern void aqp_free(void* ptr)
@@ -92,12 +103,32 @@ extern void aqp_free(void* ptr)
 	}
 	free (ptr);
 }
+
+static void report_leaks()
+{
+	if (memtrace && total_allocated > 0) {
+		printf ("Still %d bytes allocated with pointers:\n", total_allocated);
+		for (int i = 0; i < seen_pointers_n; i++) {
+			if (seen_pointers[i].ptr) {
+				printf ("pointer: %p, size: %d\n", seen_pointers[i].ptr, seen_pointers[i].size);
+			}
+		}
+	}
 }
+
+}
+
 
 static std::vector<aqp_piece_t> pieces;
 static std::vector<aqp_segment_t> segments;
 
-GIVEN("^I have created (a|another) piece$") {
+GIVEN("^I have created a piece$") {
+	if (pieces.empty()) {
+		pieces.push_back(aqp_new_piece());
+	}
+}
+
+GIVEN("^I have created another piece$") {
 	pieces.push_back(aqp_new_piece());
 }
 
@@ -140,6 +171,7 @@ THEN("^I delete the piece$") {
 
 THEN("^memory should not be allocated$") {
 	BOOST_CHECK(total_allocated == 0);
+	report_leaks();
 }
 
 GIVEN("^I have created a segment$") {
