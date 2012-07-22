@@ -11,7 +11,7 @@ end
 Given /^the track '(\w+)' contains:$/ do |track_name, row_definition|
   n = row_definition.rows.length
 
-  step "I created a write range [0, #{n-1}] on track '#{track_name}'"
+  step "I created a write range [0, #{n}[ on track '#{track_name}'"
 
   row_definition.rows.each do |r|
     if r[0] != 'nil' then

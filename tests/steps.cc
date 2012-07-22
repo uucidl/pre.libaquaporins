@@ -136,6 +136,19 @@ THEN("^the first and second piece should be different$") {
 	BOOST_CHECK(pieces[0] != pieces[1]);
 }
 
+AROUND_STEP("@test") {
+	try {
+		step->call();
+	} catch (std::exception e) {
+		std::cerr << "hello?" << std::endl;
+		BOOST_CHECK_NO_THROW(throw);
+		throw;
+	} catch (...) {
+		std::cerr << "world?" << std::endl;
+		BOOST_CHECK_NO_THROW(throw);
+		throw;
+	}
+}
 
 AFTER() {
 	/* rollback memory tracing */
@@ -186,7 +199,7 @@ GIVEN("^I have created a track '(.+)' with signature '(.+)'$") {
 static aqp_segment_edition_range_t edit_range;
 static int edit_range_row;
 
-GIVEN("^I created a write range \\[(\\d+), *(\\d+)\\] on track '(.+)'$") {
+GIVEN("^I created a write range \\[(\\d+), *(\\d+)\\[ on track '(.+)'$") {
 	REGEX_PARAM(int, start);
 	REGEX_PARAM(int, end);
 	edit_range = aqp_edit_range (segments.back(), start, end);
