@@ -32,7 +32,7 @@ Scenario: A simple flat piece
   Given I want to monitor memory
     And a segment with tracks:
   | track_name | signature |
-  | A          | int8      |
+  | A          | uint8     |
 
     And the track 'A' contains:
 | field 0 |
@@ -40,7 +40,39 @@ Scenario: A simple flat piece
 |       3 |
 |       4 |
 |     nil |
-|      28 |
+|     28  |
    Then the checksum of track 'A' should be 37
    When I delete the piece
    Then memory should not be allocated
+
+Scenario: Testing uint8 acceptance
+  Given a segment with tracks:
+  | track_name | signature |
+  | A          | uint8     |
+
+  And the track 'A' contains:
+  | field 0 |
+  |      30 |
+  |     128 |
+  |      50 |
+  |     120 |
+  |     254 |
+  |     255 |
+
+  Then the checksum of track 'A' should be 837
+
+Scenario: Testing uint16 acceptance
+  Given a segment with tracks:
+  | track_name | signature |
+  | A          | uint16    |
+
+  And the track 'A' contains:
+  | field 0 |
+  |      30 |
+  |     128 |
+  |      50 |
+  |     120 |
+  |   65535 |
+  |     255 |
+
+  Then the checksum of track 'A' should be 66118
