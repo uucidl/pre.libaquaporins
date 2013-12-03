@@ -7,7 +7,7 @@ aqp_OBJS+=$(DEST)/src/arch/libc-alloc.o
 aqp_INCLUDES=$(TOP)/include
 aqp_CFLAGS=-Wmissing-prototypes -Wstrict-prototypes
 
-$(call mk-c-staticlib-rule,aqp)
+$(call ysr-add-c-lib-static,aqp)
 
 libaqp_LIBS=$(aqp_LIBNAME)
 libaqp_LIBSPATH=$(aqp_LIBDIR)
@@ -21,7 +21,7 @@ cukebins_INCLUDES=$(cukebins_ROOT)/include
 cukebins_LIBSPATH=$(cukebins_ROOT)/build/src /usr/local/lib
 cukebins_LIBS=cucumber-cpp boost_system-mt boost_regex-mt boost_unit_test_framework-mt
 cukebins_REQUIRES=libaqp
-$(call mk-c++-console-prog-rule,cukebins)
+$(call ysr-add-c++-console-prog,cukebins)
 
 tests-run: cukebins-run
 	(cd $(TOP)/tests && cucumber)
